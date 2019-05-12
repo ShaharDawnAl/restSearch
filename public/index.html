@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>UI for this app</title>
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css"/>
+    <link href="/styles.css" rel="stylesheet" type="text/css"/>
+  </head>
+  <body>
+    <h1 class="title">Obj go - Rest API</h1>
+    <div id="homepage">
+      <h1>Search for A user in your area: </h1>
+      <div id="objects"></div>
+    </div>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/react@15/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+
+    <!--Create React component-->
+    <script type="text/babel">
+      var Objects = React.createClass({
+        getInitialState: function(){
+          return({
+            objects:[]
+          });
+        },
+        render:function(){
+          var objects = this.state.objects;
+          objects = objects.map((object,index)=>{
+            return(
+              <li key={index}>
+                <span className={ object.available }></span>
+                <span className="name">{ object.name }</span>
+                <span className="rank">{ object.rank }</span>
+                <span className="dist">{(object.dist.calculated / 1000).toFixed(2)} Km</span>
+              </li>
+            );
+          });
+          return(
+            <div id="object-container">
+              <form id="search" onSubmit={ this.handleSubmit } >
+                <label>Enter your longitude:</label>
+                <input type="text" ref="lng" placeholder="longitude" required/>
+                <br/>
+                <label>Enter your latitude:</label>
+                <input type="text" ref="lat" placeholder="latitude" required/>
+                <input type="submit" value="Find User" />
+              </form>
+              <ul>{objects}</ul>
+            </div>
+          );
+        },
+        handleSubmit: function(e){
+          e.preventDefault();
+          var lng = this.refs.lng.value;
+          var lat = this.refs.lat.value;
+          
+          fetch('/api/objs?lng=' +lng+ '&lat=' +lat ).then(function(data){
+            return data.json();
+          }).then((json) => {
+            this.setState({
+              objects:json
+            });
+          });
+        }
+      });
+
+      ReactDOM.render(<Objects />,document.getElementById('objects'));
+    </script>
+  </body>
+</html>
